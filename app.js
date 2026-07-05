@@ -64,10 +64,10 @@ const PROJECTS = [
   {
     id: "cronicas-barbaras",
     nombre: "Crónicas Bárbaras Knowledge Graph",
-    url: "https://github.com/lacrimae0rerum/cronicas-barbaras",
-    urlLabel: "GITHUB ↗",
-    desc_es: "Visor interactivo de grafos de conocimiento.",
-    desc_en: "Interactive knowledge graph viewer."
+    url: "https://lacrimae0rerum.github.io/cronicas-barbaras/",
+    urlLabel: "CRONICAS-BARBARAS ↗",
+    desc_es: "Visor estático del grafo de conocimiento del podcast Crónicas Bárbaras: 147 episodios, ~2500 entidades y 22 comunidades temáticas, con vistas por comunidad o episodio, búsqueda, timeline y deep linking por URL. Canvas 2D puro con d3-force solo para el layout, sin build step.",
+    desc_en: "Static knowledge-graph viewer for the Crónicas Bárbaras podcast: 147 episodes, ~2,500 entities and 22 thematic communities, with community and episode views, search, a timeline and URL deep linking. Pure 2D canvas using d3-force only for layout — no build step."
   },
   {
     id: "alejandria",
@@ -80,10 +80,10 @@ const PROJECTS = [
   {
     id: "team-journal",
     nombre: "Team Journal",
-    url: "TODO",
+    url: "https://github.com/lacrimae0rerum/offsec-journal",
     urlLabel: "GITHUB ↗",
-    desc_es: "TODO",
-    desc_en: "TODO"
+    desc_es: "Herramienta interna para gestionar equipos de seguridad ofensiva en un MSSP: personas, skills, proyectos, clientes y disponibilidad, con heatmap de carga y detección de skill-gap. YAML como fuente de verdad, SQLite como caché de lectura y toda modificación auditada vía journal con rollback. FastAPI + frontend estático.",
+    desc_en: "Internal tool for managing offensive-security teams at an MSSP: people, skills, projects, clients and availability, with a workload heatmap and skill-gap detection. YAML as the source of truth, SQLite as a read cache, and every change audited through a journal with rollback. FastAPI plus a static frontend."
   },
   {
     id: "corvus-engine",
@@ -122,24 +122,24 @@ const PROJECTS = [
     nombre: "Council of Intel",
     url: "https://github.com/lacrimae0rerum/council-of-intel",
     urlLabel: "GITHUB ↗",
-    desc_es: "TODO",
-    desc_en: "TODO"
+    desc_es: "App standalone de deliberación multi-LLM para análisis de inteligencia: 17 personalidades endurecidas — arquetipos SAT, doctrinarios IC como Kent o Heuer y pensadores estratégicos — deliberan en una única sesión y un Chairman pondera el dissent en un Stage Final estructurado. Sin turnos ni follow-up: una pregunta, un entregable.",
+    desc_en: "Standalone multi-LLM deliberation app for intelligence analysis: 17 hardened personalities — SAT archetypes, IC doctrine figures like Kent and Heuer, and strategic thinkers — deliberate in a single session, with a Chairman weighing dissent into a structured final stage. No turns, no follow-up: one question, one deliverable."
   },
   {
     id: "oci-security-viewer",
     nombre: "OCI Security Viewer",
     url: "https://github.com/lacrimae0rerum/oci-security-viewer",
     urlLabel: "GITHUB ↗",
-    desc_es: "TODO",
-    desc_en: "TODO"
+    desc_es: "Canvas visual drag-and-drop para diseñar arquitecturas de Oracle Cloud Infrastructure, reemplazo del OKIT que Oracle descontinuó en 2024: 14 tipos de recursos con anidamiento jerárquico, proyectos persistidos, export a PNG e import de Terraform en desarrollo. React 19 + TypeScript en el frontend, FastAPI + SQLite en el backend.",
+    desc_en: "Visual drag-and-drop canvas for designing Oracle Cloud Infrastructure architectures, replacing the OKIT that Oracle discontinued in 2024: 14 resource types with hierarchical nesting, persisted projects, PNG export and Terraform import in progress. React 19 + TypeScript frontend, FastAPI + SQLite backend."
   },
   {
     id: "it-alignment-chart",
     nombre: "IT Alignment Chart",
-    url: "https://github.com/lacrimae0rerum/it-alignment-chart",
-    urlLabel: "GITHUB ↗",
-    desc_es: "TODO",
-    desc_en: "TODO"
+    url: "https://lacrimae0rerum.github.io/it-alignment-chart/",
+    urlLabel: "IT-ALIGNMENT-CHART ↗",
+    desc_es: "Alignment chart interactivo de arquetipos del profesional IT sobre cuatro ejes — criterio, uso de IA, IQ y ética de trabajo — basado en el framework Hockenmaier × Recuenco: de Linus Torvalds a Prompt Goblin u Office Furniture. HTML/CSS/JS vanilla, cero dependencias.",
+    desc_en: "Interactive alignment chart mapping IT professional archetypes across four axes — judgment, AI usage, IQ and work ethic — based on the Hockenmaier × Recuenco framework: from Linus Torvalds to Prompt Goblin or Office Furniture. Vanilla HTML/CSS/JS, zero dependencies."
   }
 ];
 
