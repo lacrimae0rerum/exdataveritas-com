@@ -152,10 +152,21 @@ const state = {
 };
 
 const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MOBILE = window.matchMedia("(max-width: 760px)");
 const SCENES = ["home", "manifiesto", "proyectos"];
 
 const $ = id => document.getElementById(id);
 const wait = ms => new Promise(r => setTimeout(r, ms));
+
+const noVideo = () => RM || MOBILE.matches;
+const VIDEO_IDS = ["idleVideo", "introVideo", "maniVideo", "proyVideo", "proyVideoB", "proyIntroVideo"];
+
+function prefetchVideos() {
+  VIDEO_IDS.forEach(id => {
+    const v = $(id);
+    if (v && v.preload !== "auto") { v.preload = "auto"; v.load(); }
+  });
+}
 
 /* ═══════════ 4. Hash: estado en la URL ═══════════ */
 
@@ -282,7 +293,7 @@ function seatRaccoon() {
 
 /* Loop idle del salón: se reproduce solo en home (y no con reduced motion) */
 function startIdleLoop() {
-  if (RM) return;
+  if (noVideo()) return;
   const v = $("idleVideo");
   v.classList.add("on");
   const p = v.play();
@@ -371,7 +382,7 @@ function playProyIntro() {
 /* Loop de fondo del manifiesto */
 function syncManiLoop() {
   const v = $("maniVideo");
-  if (!v || RM) return;
+  if (!v || noVideo()) return;
   if (state.scene === "manifiesto") {
     v.classList.add("on");
     const p = v.play();
@@ -383,7 +394,7 @@ function syncManiLoop() {
 
 function syncProyLoop() {
   const intro = $("proyIntroVideo");
-  if (RM) return;
+  if (noVideo()) return;
   if (state.scene === "proyectos") {
     if (!proyIntroPlayed) {
       proyIntroPlayed = true;
@@ -523,7 +534,7 @@ async function runIntro() {
   nav.classList.add("hidden");
 
   /* 3 · vídeo de entrada */
-  await playIntroVideo();
+  if (!noVideo()) await playIntroVideo();
 
   /* 4 · enlaces escalonados */
   nav.classList.add("stagger");
@@ -610,6 +621,14 @@ function bindEvents() {
 
   /* alternancia de idles en proyectos */
   PROY_IDLES.forEach(id => $(id).addEventListener("ended", switchProyIdle));
+
+  MOBILE.addEventListener("change", e => {
+    if (e.matches) { VIDEO_IDS.forEach(id => { const v = $(id); if (v) v.pause(); }); return; }
+    if (RM) return;
+    prefetchVideos();
+    if (state.introDone) startIdleLoop();
+    syncIdleLoop(); syncManiLoop(); syncProyLoop();
+  });
 }
 
 /* ═══════════ 11. Init ═══════════ */
@@ -621,6 +640,7 @@ function buildSprites() {
 function init() {
   buildSprites();
   renderProjects();
+  if (!noVideo()) prefetchVideos();
 
   const parsed = parseHash();
   state.lang = parsed.lang === "en" ? "en" : "es";

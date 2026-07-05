@@ -3,6 +3,7 @@
 :root {
   /* barras negras: crecen para encajar el vídeo 16:9 sin recortar los lados */
   --lbox:  calc((100vh - 56.25vw) / 2);
+  --lbox:  calc((100dvh - 56.25vw) / 2);
   --bar-t: max(88px, var(--lbox));
   --bar-b: max(64px, var(--lbox));
 
@@ -516,7 +517,7 @@ body[data-scene="proyectos"]  #scene-proyectos  { display: flex; }
   text-transform: none;
   color: var(--ink);
 }
-.card.open .card-body { max-height: 260px; opacity: 1; padding: 12px 18px 18px; }
+.card.open .card-body { max-height: 560px; opacity: 1; padding: 12px 18px 18px; }
 .card-desc { font-size: 14px; line-height: 1.6; color: var(--def); max-width: 58ch; margin-bottom: 14px; }
 .card-url {
   display: inline-flex;
@@ -569,18 +570,26 @@ body[data-scene="proyectos"]  #scene-proyectos  { display: flex; }
 @media (max-width: 760px) {
   :root { --px: calc(30vh / 138); --bar-t: 88px; --bar-b: 64px; }
 
-  .pill { min-height: 44px; padding: 8px 16px; }
+  .wordmark { font-size: 13px; letter-spacing: 0.14em; }
+
+  .pill { min-height: 44px; padding: 8px 12px; }
+
+  body[data-scene="home"] .hint { display: none; }
 
   #scene-home { overflow-y: auto; }
 
+  #idleVideo, #introVideo, #maniVideo,
+  #proyVideo, #proyVideoB, #proyIntroVideo { display: none !important; }
+
   #homeNav {
-    position: static;
+    position: relative;
+    inset: auto;
     transform: none;
     width: 100%;
-    padding: 84px 16px 72px;
+    padding: 96px 16px 72px;
   }
 
-  #scene-manifiesto { padding: 72px 16px 72px; }
+  #scene-manifiesto { padding: 96px 16px 96px; }
   .frame { padding: 18px; }
   .rows li { flex-direction: column; gap: 2px; }
   .rows b { max-width: none; }
