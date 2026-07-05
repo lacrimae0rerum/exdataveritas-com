@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark" data-lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EX DATA, VERITAS — Lacrimae Rerum</title>
+<meta name="description" content="Hub de Lacrimae Rerum: ciberinteligencia de amenazas (CTI), OSINT, herramientas local-first para analistas y proyectos propios.">
+<link rel="canonical" href="https://exdataveritas.com/">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<meta property="og:title" content="EX DATA, VERITAS — Lacrimae Rerum">
+<meta property="og:description" content="Hub de Lacrimae Rerum: ciberinteligencia de amenazas (CTI), OSINT, herramientas local-first para analistas y proyectos propios.">
+<meta property="og:url" content="https://exdataveritas.com/">
+<meta property="og:image" content="https://exdataveritas.com/assets/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lacrimae Rerum",
+  "jobTitle": "Cyber Threat Intelligence Analyst",
+  "url": "https://exdataveritas.com/",
+  "sameAs": [
+    "https://x.com/exdata_veritas",
+    "https://github.com/lacrimae0rerum",
+    "https://www.linkedin.com/in/fernandorodsan/"
+  ]
+}
+</script>
+</head>
+<body data-scene="palm">
+
+<header>
+  <div class="corner brand-block">
+    <a class="wordmark" href="#home">· EX DATA, VERITAS ·</a>
+    <a class="back-home" id="backHome" href="#home">
+      <i class="corner-arrow" aria-hidden="true">&#8630;</i>
+      <span lang="es">Volver al inicio</span>
+      <span lang="en">Back to home</span>
+    </a>
+  </div>
+  <div class="corner ctrls">
+    <button id="langToggle" class="pill" type="button">EN</button>
+    <button id="themeToggle" class="pill" type="button" aria-label="Cambiar tema">◐</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══ escena palma ═══ -->
+  <section id="scene-palm" class="scene" data-screen-label="Palma">
+    <div class="palm-wrap">
+      <svg class="circ" id="circSvg" viewBox="0 0 300 300" aria-hidden="true">
+        <defs>
+          <path id="circPath" d="M 150,60 a 90,90 0 1,1 -0.01,0"></path>
+        </defs>
+        <text lang="es"><textPath href="#circPath" textLength="560" lengthAdjust="spacing">· HAZ CLICK AQUÍ · CHOCA ESOS CINCO ·</textPath></text>
+        <text lang="en"><textPath href="#circPath" textLength="560" lengthAdjust="spacing">· CLICK HERE · HIGH FIVE ·</textPath></text>
+      </svg>
+      <button id="palmBtn" type="button" aria-label="Choca esos cinco">
+        <img id="palmCv" src="assets/mapache-mano.png" alt="">
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══ escena salón ═══ -->
+  <section id="scene-home" class="scene" data-screen-label="Salón">
+    <video id="idleVideo" src="assets/home-idle.mp4" loop muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="introVideo" src="assets/home-entrada.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <nav id="homeNav" class="hidden" aria-label="Enlaces">
+      <a class="rect big" style="--i:0" href="#proyectos" data-scene-link="proyectos"><span><span lang="es">Proyectos</span><span lang="en">Projects</span></span><span class="glyph">→</span></a>
+      <a class="rect mid" style="--i:1" href="#manifiesto" data-scene-link="manifiesto"><span><span lang="es">Manifiesto</span><span lang="en">Manifesto</span></span><span class="glyph">→</span></a>
+      <a class="rect gap" style="--i:2" href="https://x.com/exdata_veritas" target="_blank" rel="noopener"><span>Twitter // X.com</span><span class="glyph">↗</span></a>
+      <a class="rect" style="--i:3" href="https://github.com/lacrimae0rerum" target="_blank" rel="noopener"><span>GitHub</span><span class="glyph">↗</span></a>
+      <a class="rect" style="--i:4" href="https://www.linkedin.com/in/fernandorodsan/" target="_blank" rel="noopener"><span>LinkedIn</span><span class="glyph">↗</span></a>
+    </nav>
+  </section>
+
+  <!-- ═══ escena manifiesto ═══ -->
+  <section id="scene-manifiesto" class="scene" data-screen-label="Manifiesto">
+    <video id="maniVideo" src="assets/manifiesto-idle.mp4" loop muted playsinline preload="auto" aria-hidden="true"></video>
+    <div class="frame">
+      <p class="eyebrow"><span lang="es">Manifiesto</span><span lang="en">Manifesto</span></p>
+      <h1>Lacrimae Rerum</h1>
+
+      <article class="manifest" lang="es">
+        <p class="lede">Analista de Ciberinteligencia de Amenazas en un MSSP, trabajando en la intersección entre OSINT, investigación adversarial, apoyo DFIR, seguridad ofensiva y automatización para analistas.</p>
+        <p class="lede">Construyo herramientas local-first para trabajo de inteligencia: sistemas que ayudan a recopilar, estructurar, enriquecer y razonar sobre datos incompletos sin convertir cada flujo en una dependencia SaaS.</p>
+
+        <section>
+          <p class="eyebrow sec">Áreas</p>
+          <ul class="rows">
+            <li><b>CTI</b><span>recopilación, enriquecimiento, evaluación, reporting y contexto operativo.</span></li>
+            <li><b>OSINT</b><span>investigación de superficie de ataque: infraestructura, validación de fuentes y correlación de entidades.</span></li>
+            <li><b>Tooling</b><span>LLMs locales, integraciones MCP, Obsidian y automatización de tareas reales de analista.</span></li>
+            <li><b>Ofensiva</b><span>reconocimiento, laboratorios, emulación adversaria y sistemas de engaño.</span></li>
+            <li><b>GRC</b><span>traducción de hallazgos técnicos a lenguaje de riesgo útil para decisión ejecutiva.</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Principios</p>
+          <ul class="rows">
+            <li><span>Local-first antes que cloud-first.</span></li>
+            <li><span>Sistemas abiertos e inspeccionables antes que plataformas opacas.</span></li>
+            <li><span>Terminal cuando mejora la velocidad operativa.</span></li>
+            <li><span>IA para aumentar al analista, no para sustituirlo.</span></li>
+            <li><span>Disciplina de fuentes, calibración de confianza y análisis estructurado antes que acumulación de datos.</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Stack</p>
+          <p class="monoline">Python · TypeScript · Go · Shell · Docker · Linux · FastAPI · Svelte · SQLite · DuckDB · Obsidian · MCP · LLMs locales</p>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Métodos y estándares</p>
+          <p class="monoline">MITRE ATT&amp;CK · Diamond Model · STIX/TAXII · TLP · técnicas analíticas estructuradas · fiabilidad de fuentes y scoring de confianza · contexto de reporting NIS2/DORA/ENS</p>
+        </section>
+      </article>
+
+      <article class="manifest" lang="en">
+        <p class="lede">Cyber Threat Intelligence analyst working across OSINT, adversary research, DFIR support, offensive-security workflows and analyst automation.</p>
+        <p class="lede">I build local-first tools for intelligence work: systems that help collect, structure, enrich and reason over messy data without turning every workflow into another SaaS dependency.</p>
+
+        <section>
+          <p class="eyebrow sec">Focus</p>
+          <ul class="rows">
+            <li><b>CTI</b><span>collection, enrichment, assessment, reporting and operational context.</span></li>
+            <li><b>OSINT</b><span>attack-surface research: infrastructure mapping, source validation and entity correlation.</span></li>
+            <li><b>Tooling</b><span>local LLM workflows, MCP integrations, Obsidian knowledge systems and automation around real analyst tasks.</span></li>
+            <li><b>Offensive</b><span>reconnaissance, lab environments, adversary emulation and deception systems.</span></li>
+            <li><b>GRC</b><span>turning technical findings into risk language useful for decision makers.</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Principles</p>
+          <ul class="rows">
+            <li><span>Local-first before cloud-first.</span></li>
+            <li><span>Open, inspectable systems before opaque platforms.</span></li>
+            <li><span>Terminal-native workflows where they make operators faster.</span></li>
+            <li><span>AI as analyst augmentation, not analyst replacement.</span></li>
+            <li><span>Source discipline, confidence calibration and structured analytic thinking over raw data accumulation.</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Stack</p>
+          <p class="monoline">Python · TypeScript · Go · Shell · Docker · Linux · FastAPI · Svelte · SQLite · DuckDB · Obsidian · MCP · local LLMs</p>
+        </section>
+
+        <section>
+          <p class="eyebrow sec">Methods and standards</p>
+          <p class="monoline">MITRE ATT&amp;CK · Diamond Model · STIX/TAXII · TLP · structured analytic techniques · source reliability and confidence scoring · NIS2/DORA/ENS-aware reporting context</p>
+        </section>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ escena proyectos ═══ -->
+  <section id="scene-proyectos" class="scene" data-screen-label="Proyectos">
+    <video id="proyVideo" src="assets/proyectos-idle.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="proyVideoB" src="assets/proyectos-idle-cafe.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video id="proyIntroVideo" src="assets/proyectos-entrada.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <div class="proj-head">
+      <p class="eyebrow"><span lang="es">Proyectos</span><span lang="en">Projects</span> · <span id="projCount">00</span></p>
+    </div>
+    <div id="projGrid"></div>
+  </section>
+
+</main>
+
+<button class="corner return-bubble" id="returnBubble" type="button">
+  <canvas id="miniPalmCv" aria-hidden="true"></canvas>
+  <span lang="es">← Ir atrás…</span>
+  <span lang="en">← Go back…</span>
+</button>
+
+<p class="corner hint" aria-hidden="true">
+  <span lang="es">CLIC EN UN RECTÁNGULO · ESC PARA VOLVER</span>
+  <span lang="en">CLICK A RECTANGLE · ESC TO GO BACK</span>
+</p>
+
+<div id="curtain" aria-hidden="true"></div>
+<div id="grain" aria-hidden="true"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
