@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MacWatch: visibilidad local y clara de lo que ocurre en tu Mac.">
+  <meta name="color-scheme" content="dark light">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=DM+Mono:wght@400;500&amp;family=DM+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 fill=%22%23232E26%22/><path d=%22M4 8h5l7 6 7-6h5v16h-5v-8l-7 6-7-6v8H4z%22 fill=%22%23EDE6D0%22/></svg>">
+  <title>MacWatch · Conoce tu Mac, sin ruido</title>
+  <!--
+  MIT License
+
+  Copyright (c) 2026 Zara Zhang
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+  -->
+  <style>
+    :root {
+      --c-bg:#232e26; --c-bg-alt:#2e3d30; --c-cream:#ede6d0; --c-cream-alt:#e4dac4;
+      --c-fg:#f0e8d2; --c-fg-muted:rgba(240,232,210,.62); --c-fg-faint:rgba(240,232,210,.62);
+      --c-ink:#1e2820; --c-ink-muted:rgba(30,40,32,.68); --c-accent:#c07030;
+      --c-line:rgba(240,232,210,.14); --c-line-light:rgba(30,40,32,.17);
+      --f-display:"Bricolage Grotesque",system-ui,sans-serif; --f-body:"DM Sans",system-ui,sans-serif; --f-mono:"DM Mono",monospace;
+      --surface:var(--c-bg); --surface-alt:var(--c-bg-alt); --ink:var(--c-fg); --muted:var(--c-fg-muted); --faint:var(--c-fg-faint); --line:var(--c-line);
+    }
+    :root[data-theme="paper"] { --surface:var(--c-cream); --surface-alt:var(--c-cream-alt); --ink:var(--c-ink); --muted:var(--c-ink-muted); --faint:rgba(30,40,32,.70); --line:var(--c-line-light); color-scheme:light; }
+    * { box-sizing:border-box; }
+    html,body { overflow-x:clip; }
+    html { scroll-behavior:auto; background:var(--surface); }
+    body { margin:0; background:var(--surface); color:var(--ink); font:16px/1.6 var(--f-body); }
+    a { color:inherit; }
+    button { font:inherit; }
+    img { display:block; max-width:100%; }
+    :focus-visible { outline:2px solid var(--c-accent); outline-offset:4px; }
+    .skip { position:absolute; z-index:30; top:-5rem; left:1rem; padding:.7rem 1rem; background:var(--c-cream); color:var(--c-ink); border:1px solid var(--c-ink); text-decoration:none; font:500 .75rem var(--f-mono); letter-spacing:.08em; text-transform:uppercase; }
+    .skip:focus { top:1rem; }
+    .shell { width:min(100% - 3rem,1280px); margin-inline:auto; }
+    .dark-surface { --ink:var(--c-fg); --muted:var(--c-fg-muted); --faint:var(--c-fg-faint); --line:var(--c-line); position:relative; isolation:isolate; background:var(--c-bg); color:var(--c-fg); }
+    .dark-surface::before { content:""; position:absolute; z-index:-1; right:0; bottom:-22rem; width:min(62rem,82vw); height:52rem; pointer-events:none; background:radial-gradient(ellipse at 68% 70%,rgba(122,78,36,.32) 0%,rgba(80,50,20,.17) 39%,transparent 70%); }
+    .nav-wrap { position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--surface) 92%,transparent); border-bottom:1px solid var(--line); backdrop-filter:blur(14px); }
+    nav { min-height:66px; display:grid; grid-template-columns:auto 1fr auto; gap:1.25rem; align-items:center; }
+    .brand { display:inline-flex; align-items:center; gap:.6rem; color:var(--ink); text-decoration:none; font:500 .77rem var(--f-mono); letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
+    .brand img { width:28px; height:28px; object-fit:contain; }
+    .nav-links { display:flex; justify-content:center; gap:.1rem; min-width:0; }
+    .nav-links a { padding:.55rem .65rem; color:var(--muted); text-decoration:none; font:400 .67rem var(--f-mono); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
+    .nav-links a:hover,.nav-links a.active { color:var(--ink); }
+    .theme,.filter,.button { min-height:44px; border:1px solid currentColor; border-radius:0; background:transparent; cursor:pointer; font:500 .68rem var(--f-mono); letter-spacing:.08em; text-transform:uppercase; }
+    .theme { padding:.55rem .72rem; color:var(--ink); }
+    .button { color:inherit; }
+    .theme:hover,.filter:hover { border-color:var(--c-accent); }
+    main { min-width:0; }
+    .hero { width:min(100% - 3rem,1580px); min-height:calc(100svh - 66px); display:grid; grid-template-columns:minmax(24rem,.72fr) minmax(0,1.28fr); gap:clamp(2rem,4vw,5rem); align-items:center; padding:clamp(5rem,10vh,9rem) 0 clamp(4rem,8vh,7rem); }
+    .eyebrow,.kicker,.status,.tag,.section-index,.microcopy { font:400 .7rem/1.45 var(--f-mono); letter-spacing:.12em; text-transform:uppercase; }
+    .eyebrow,.kicker { margin:0 0 1rem; color:currentColor; }
+    .eyebrow::before,.kicker::before,.section-index::before { content:""; display:inline-block; width:1.35rem; height:1px; margin:0 .65rem .3em 0; background:var(--c-accent); vertical-align:middle; }
+    h1,h2,h3,p { text-wrap:balance; }
+    h1,h2,h3 { font-family:var(--f-display); }
+    h1 { max-width:9.4ch; margin:0; font-size:clamp(4rem,8.1vw,5.8rem); font-weight:800; line-height:.88; letter-spacing:-.045em; }
+    .hero-title-line { display:block; white-space:nowrap; }
+    .lead { max-width:51ch; margin:2rem 0 0; color:var(--muted); font-size:clamp(1.06rem,1.45vw,1.28rem); line-height:1.58; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:2.25rem; }
+    .button { display:inline-flex; align-items:center; justify-content:center; padding:.75rem 1rem; text-decoration:none; }
+    .button.primary { background:var(--c-cream); border-color:var(--c-cream); color:var(--c-ink); }
+    .button:hover { border-color:var(--c-accent); }
+    .button.primary:hover { background:var(--c-cream); color:var(--c-ink); }
+    .microcopy { margin:1.1rem 0 0; color:var(--faint); line-height:1.6; }
+    .hero > :first-child { position:relative; z-index:2; }
+    .hero-art { position:relative; min-width:0; width:min(100%,840px); min-height:760px; justify-self:end; overflow:visible; }
+    .hero-art::before { content:""; position:absolute; z-index:0; width:min(86%,720px); aspect-ratio:1; height:auto; right:3%; top:50%; transform:translateY(-50%); border:1px solid var(--c-line); background:linear-gradient(135deg,rgba(46,61,48,.92),rgba(46,61,48,.18)); }
+    .carousel { position:relative; z-index:1; width:100%; height:760px; overflow:visible; }
+    .carousel-stage { position:relative; width:100%; height:calc(100% - 60px); overflow:visible; touch-action:pan-y; }
+    .carousel-card { --slot:0; --depth:0; position:absolute; top:50%; left:50%; width:min(86%,720px); aspect-ratio:1.76; margin:0; overflow:hidden; border:1px solid var(--c-fg); background:#080d09; box-shadow:calc(var(--slot) * 7px) calc(16px + var(--depth) * 5px) 0 rgba(0,0,0,.24); clip-path:polygon(0 7px,7px 7px,7px 0,calc(100% - 7px) 0,calc(100% - 7px) 7px,100% 7px,100% calc(100% - 7px),calc(100% - 7px) calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,7px calc(100% - 7px),0 calc(100% - 7px)); transform:translate(-50%,-50%) translate(calc(var(--slot) * 4.25%),calc(var(--depth) * 17px)) rotate(calc(var(--slot) * 3.1deg)); transform-origin:50% 88%; transition:transform 520ms steps(8,end),opacity 380ms steps(6,end),filter 380ms steps(6,end); }
+    .carousel-card::after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.18; background:repeating-linear-gradient(to bottom,rgba(240,232,210,.14) 0 1px,transparent 1px 4px); mix-blend-mode:screen; }
+    .carousel-card img { width:100%; height:100%; object-fit:cover; image-rendering:auto; filter:contrast(1.035) saturate(.92); }
+    .carousel-card.logo-card img { height:100%; width:auto; max-width:100%; margin:auto; object-fit:contain; }
+    .carousel-card[aria-hidden="true"] { pointer-events:none; }
+    .carousel-card.is-active { border-color:var(--c-cream); opacity:1; filter:none; }
+    .carousel-card:not(.is-active) { opacity:.58; filter:brightness(.72) saturate(.78); }
+    .carousel-controls { position:absolute; z-index:10; inset:0; pointer-events:none; }
+    .carousel-button { position:absolute; top:calc((100% - 60px) / 2); display:grid; width:44px; height:44px; place-items:center; transform:translateY(-50%); pointer-events:auto; border:1px solid var(--c-line); border-radius:0; background:color-mix(in srgb,var(--c-bg) 78%,transparent); color:var(--c-fg); cursor:pointer; font:500 1.15rem/1 var(--f-mono); }
+    .carousel-button[data-carousel="previous"] { left:0; }
+    .carousel-button[data-carousel="next"] { right:0; }
+    .carousel-button:hover { border-color:var(--c-accent); color:var(--c-cream); }
+    .carousel-status { position:absolute; bottom:0; left:50%; min-width:8.5rem; margin:0; transform:translateX(-50%); color:var(--c-fg-muted); font:.62rem/1.35 var(--f-mono); letter-spacing:.08em; text-align:center; text-transform:uppercase; }
+    section { position:relative; scroll-margin-top:66px; padding:clamp(4.8rem,10vw,9rem) 0; border-top:1px solid var(--line); }
+    .section-head { margin-bottom:clamp(2.2rem,5vw,4rem); }
+    .section-index { margin:0 0 .85rem; color:currentColor; }
+    h2 { margin:0; font-size:clamp(2.55rem,5.4vw,5.6rem); font-weight:700; line-height:.94; letter-spacing:-.045em; }
+    .section-title-line { display:block; white-space:nowrap; }
+    .intro { max-width:59ch; margin:1.25rem 0 0; color:var(--muted); font-size:clamp(1rem,1.3vw,1.17rem); }
+    .statement-grid { display:grid; grid-template-columns:1fr minmax(17rem,.78fr); gap:clamp(2rem,7vw,8rem); align-items:end; }
+    .statement { max-width:14ch; margin:0; font:700 clamp(2.3rem,4.4vw,4.6rem)/.98 var(--f-display); letter-spacing:-.04em; }
+    .statement em,.stat-value em { color:var(--c-accent); font-style:normal; }
+    .info-card { padding:clamp(1.55rem,3vw,2.5rem); background:var(--c-cream); color:var(--c-ink); }
+    .info-card h3 { margin:0 0 .7rem; font-size:clamp(1.35rem,2vw,2rem); line-height:1.05; letter-spacing:-.03em; }
+    .info-card p { margin:0; color:var(--c-ink-muted); }
+    .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:clamp(3.5rem,7vw,7rem); border-top:1px solid var(--line); }
+    .metric { min-width:0; padding:1.5rem 1.4rem 1rem 0; border-right:1px solid var(--line); }
+    .metric + .metric { padding-left:1.4rem; } .metric:last-child { border-right:0; }
+    .stat-value { display:block; font:800 clamp(2.8rem,5.6vw,6rem)/.9 var(--f-display); letter-spacing:-.055em; }
+    .metric span:last-child { display:block; margin-top:.75rem; color:var(--muted); font-size:.88rem; }
+    .capabilities-intro { display:flex; justify-content:space-between; align-items:end; gap:1rem; margin-bottom:1.25rem; }
+    .filter-bar { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .filter { min-height:40px; padding:.45rem .65rem; color:var(--c-fg-muted); border-color:var(--c-line); }
+    .filter[aria-pressed="true"] { color:var(--c-ink); background:var(--c-cream); border-color:var(--c-cream); }
+    .capabilities { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid var(--c-line); border-left:1px solid var(--c-line); }
+    .capability { min-width:0; min-height:220px; padding:1.35rem; border-right:1px solid var(--c-line); border-bottom:1px solid var(--c-line); }
+    .capability[hidden] { display:none; }
+    .tag { display:inline-block; color:var(--c-fg); }
+    .tag.future { color:var(--c-fg-muted); }
+    .capability h3 { margin:1.35rem 0 .6rem; font-size:clamp(1.2rem,1.65vw,1.55rem); line-height:1.05; letter-spacing:-.025em; }
+    .capability p { margin:0; color:var(--c-fg-muted); font-size:.93rem; }
+    .process { --ink:var(--c-ink); --muted:var(--c-ink-muted); --faint:var(--c-ink-muted); --line:var(--c-line-light); background:var(--c-cream); color:var(--c-ink); }
+    .process section { border-color:var(--c-line-light); }
+    .process .kicker,.process .section-index { color:currentColor; }
+    .process .intro,.process .step p { color:var(--c-ink-muted); }
+    .flow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--c-line-light); }
+    .step { min-width:0; padding:1.35rem 1.1rem 1rem 0; border-right:1px solid var(--c-line-light); }
+    .step + .step { padding-left:1.1rem; } .step:last-child { border-right:0; }
+    .step::before { display:block; margin-bottom:2.5rem; color:currentColor; content:counter(step,decimal-leading-zero); counter-increment:step; font:.7rem var(--f-mono); letter-spacing:.12em; }
+    .step::after { content:""; display:block; width:1.5rem; height:1px; margin-top:1.35rem; background:var(--c-accent); }
+    .flow { counter-reset:step; }
+    .step h3 { margin:0 0 .55rem; font-size:clamp(1.25rem,1.8vw,1.75rem); line-height:1.02; letter-spacing:-.03em; }
+    .step p { margin:0; font-size:.92rem; }
+    .next-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(18rem,.72fr); gap:clamp(2.5rem,7vw,8rem); align-items:start; }
+    .future-list { display:grid; gap:0; margin:0; padding:0; list-style:none; border-top:1px solid var(--line); }
+    .future-list li { display:grid; grid-template-columns:1.35rem 1fr; gap:.7rem; padding:1.05rem 0; border-bottom:1px solid var(--line); }
+    .future-list li::before { content:"—"; color:var(--c-accent); font-family:var(--f-mono); }
+    .future-list strong { display:block; font-weight:500; }
+    .future-list span { display:block; margin-top:.18rem; color:var(--muted); font-size:.92rem; }
+    .future-note { padding:clamp(1.55rem,3vw,2.5rem); background:var(--c-bg-alt); }
+    .future-note h3 { margin:1.3rem 0 .65rem; font-size:clamp(1.7rem,2.5vw,2.5rem); line-height:1.02; letter-spacing:-.035em; }
+    .future-note p { margin:0; color:var(--c-fg-muted); }
+    .notice { max-width:76ch; margin:0 0 1.7rem; padding:1rem 0 1rem 1.15rem; border-left:1px solid var(--c-accent); color:var(--muted); }
+    .edition-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(1rem,2vw,2rem); }
+    .edition { min-width:0; border:1px solid var(--c-line); }
+    .edition-art { background:var(--c-bg-alt); }
+    .edition-art img { width:100%; height:auto; object-fit:contain; }
+    .edition-card { min-width:0; padding:1.35rem; border-top:1px solid var(--c-line); }
+    .edition-card.featured { background:var(--c-cream); color:var(--c-ink); }
+    .edition-card h3 { margin:0 0 .55rem; font:700 1.45rem/1 var(--f-display); letter-spacing:-.025em; }
+    .edition-card p { margin:0; color:var(--c-fg-muted); font-size:.92rem; }
+    .edition-card.featured p { color:var(--c-ink-muted); }
+    .table-wrap { max-width:100%; margin-top:1.8rem; overflow-x:auto; border-top:1px solid var(--c-line); border-bottom:1px solid var(--c-line); }
+    table { width:100%; min-width:760px; border-collapse:collapse; color:var(--c-fg); }
+    caption { padding:1rem 0; color:var(--c-fg-muted); text-align:left; font-size:.82rem; }
+    th,td { padding:1rem; border-top:1px solid var(--c-line); text-align:left; vertical-align:top; }
+    thead th { color:var(--c-fg); font:400 .64rem/1.45 var(--f-mono); letter-spacing:.09em; text-transform:uppercase; }
+    tbody th { color:var(--c-fg); font:500 .95rem/1.5 var(--f-body); letter-spacing:normal; text-transform:none; } .check { color:currentColor; font-weight:500; } .planned { color:var(--c-fg-muted); font-size:.9rem; }
+    .closing { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2rem; align-items:end; padding-top:clamp(4.8rem,10vw,9rem); }
+    .closing h2 { font-size:clamp(3.5rem,7vw,7.2rem); }
+    footer { padding:1.4rem 0 2.4rem; border-top:1px solid var(--line); color:var(--faint); font:.66rem/1.65 var(--f-mono); letter-spacing:.05em; }
+    html.motion-ready .reveal .section-index,html.motion-ready .reveal .section-head h2,html.motion-ready .reveal .section-head .intro,html.motion-ready .reveal > :not(.section-head) { opacity:0; transform:translateY(1.1rem); clip-path:inset(0 100% 0 0); transition:opacity 320ms steps(5,end),transform 460ms steps(7,end),clip-path 520ms steps(8,end); }
+    html.motion-ready .reveal.is-revealed .section-index,html.motion-ready .reveal.is-revealed .section-head h2,html.motion-ready .reveal.is-revealed .section-head .intro,html.motion-ready .reveal.is-revealed > :not(.section-head) { opacity:1; transform:none; clip-path:inset(0 0 0 0); }
+    html.motion-ready .reveal .section-head h2 { transition-delay:70ms; } html.motion-ready .reveal .section-head .intro { transition-delay:140ms; } html.motion-ready .reveal > :not(.section-head) { transition-delay:210ms; }
+    @media (min-width:1181px) { .carousel-card { left:55%; } }
+    @media (max-width:1180px) { .hero { grid-template-columns:1fr; min-height:auto; } .hero-art,.carousel { width:min(100%,820px); min-height:0; height:clamp(560px,76vw,720px); } .hero-art { justify-self:center; } }
+    @media (max-width:900px) { .hero-art,.carousel { height:clamp(430px,74vw,620px); } .hero-art::before { width:min(82%,620px); } .statement-grid,.next-grid { grid-template-columns:1fr; } .info-card { max-width:38rem; } .capabilities { grid-template-columns:repeat(2,minmax(0,1fr)); } .flow { grid-template-columns:repeat(2,minmax(0,1fr)); } .step:nth-child(2) { border-right:0; } .step:nth-child(n+3) { border-top:1px solid var(--c-line-light); } .closing { grid-template-columns:1fr; align-items:start; } }
+    @media (max-width:700px) { .shell,.hero { width:min(100% - 2rem,1280px); } nav { grid-template-columns:1fr auto; grid-template-areas:"brand theme" "links links"; column-gap:.75rem; row-gap:.25rem; min-height:0; padding:.55rem 0 .3rem; } .brand { grid-area:brand; } .brand span { display:inline; } .theme { grid-area:theme; min-height:38px; padding:.45rem .5rem; font-size:.6rem; } .nav-links { grid-area:links; justify-content:flex-start; width:100%; overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; } .nav-links a { display:block; flex:0 0 auto; padding:.55rem .55rem; font-size:.6rem; } section { scroll-margin-top:108px; } .hero { padding:4.2rem 0 4.5rem; gap:2rem; } h1 { font-size:clamp(1.75rem,10.2vw,5.2rem); } h2,.closing h2 { font-size:clamp(1rem,5.8vw,2.55rem); } .hero-title-line { white-space:nowrap; } .lead { margin-top:1.5rem; } .hero-art,.carousel { height:clamp(340px,92vw,470px); } .hero-art::before { width:min(84%,420px); } .carousel-stage { height:calc(100% - 52px); } .carousel-card { left:50%; width:90%; transform:translate(-50%,-50%) translate(calc(var(--slot) * 2.7%),calc(var(--depth) * 12px)) rotate(calc(var(--slot) * 2deg)); } .carousel-button { top:calc((100% - 52px) / 2); } .carousel-status { min-width:7.3rem; font-size:.56rem; } .metrics,.capabilities,.edition-grid { grid-template-columns:1fr; } .metric,.metric + .metric { padding:1.2rem 0; border-right:0; border-bottom:1px solid var(--line); } .metric:last-child { border-bottom:0; } .capabilities-intro { align-items:start; flex-direction:column; } .capability { min-height:auto; } .flow { grid-template-columns:1fr; } .step,.step + .step,.step:nth-child(2) { padding:1.2rem 0; border-right:0; border-bottom:1px solid var(--c-line-light); } .step::before { margin-bottom:1.4rem; } .edition-card { padding:1.2rem; } .closing { gap:1.5rem; } }
+    @media (max-width:430px) { .hero-actions { align-items:stretch; flex-direction:column; } .button { width:100%; } }
+    /* Pager viewport: every section is a complete, non-scrolling screen. */
+    html,body { width:100%; height:100%; overflow:hidden; }
+    body { display:grid; grid-template-rows:auto minmax(0,1fr); }
+    .nav-wrap { position:relative; z-index:30; background:var(--surface); backdrop-filter:none; }
+    :root:not([data-theme="paper"]) .nav-wrap { background:var(--c-bg); }
+    .nav-wrap .brand { background:transparent; }
+    main { position:relative; height:100%; min-height:0; overflow:hidden; }
+    .page { position:absolute; inset:0; z-index:0; display:block; overflow:hidden; visibility:hidden; pointer-events:none; background:var(--surface); clip-path:inset(0 100% 0 0); transform:translateX(2rem); }
+    .page.dark-surface { background:var(--c-bg); }
+    main .page.dark-surface::before { display:none; }
+    .page.process { background:var(--c-cream); }
+    .page.is-active { visibility:visible; }
+    .page.is-active { z-index:2; pointer-events:auto; clip-path:inset(0); transform:none; }
+    .page > :is(header,section).shell { width:min(100% - 3rem,1360px); height:100%; margin-inline:auto; }
+    .page > section { padding:clamp(.8rem,2.4vh,1.45rem) 0; }
+    .page-footer { position:absolute; right:1.5rem; bottom:.45rem; left:1.5rem; width:auto; padding:.25rem 0 0; border-top:1px solid var(--line); font-size:.52rem; line-height:1.25; }
+    main .hero { min-height:0; overflow:visible; grid-template-columns:minmax(18rem,.43fr) minmax(0,1.57fr); gap:clamp(1rem,2.5vw,2.5rem); align-items:center; padding:clamp(.8rem,2vh,1.4rem) 0; }
+    main .hero h1 { font-size:clamp(3rem,5.3vw,5.8rem); }
+    main .hero .lead { margin-top:1rem; font-size:clamp(.9rem,1.15vw,1.08rem); line-height:1.42; }
+    main .hero-actions { margin-top:1.15rem; } main .hero .microcopy { margin-top:.65rem; font-size:.55rem; }
+    main .hero-art,main .carousel { width:100%; min-height:0; height:min(100%,720px); }
+    main .hero-art::before { width:min(78%,720px); }
+    main .carousel-stage { height:calc(100% - 52px); }
+    main .carousel-card { left:50%; width:min(92%,1080px); border:1px solid var(--c-fg); clip-path:none; background:#101712; box-shadow:0 14px 0 #101712; opacity:1; filter:none; transform:translate(-50%,-50%) translate(calc(var(--slot) * 3.1%),calc(var(--depth) * 14px)) rotate(calc(var(--slot) * 2.2deg)); transition:transform 440ms cubic-bezier(.2,.8,.2,1); }
+    main .carousel-card::after { display:none; }
+    main .carousel-card,.carousel-card.is-active,.carousel-card:not(.is-active) { opacity:1; filter:none; }
+    main .carousel-card img { object-fit:contain; image-rendering:auto; filter:none; background:#101712; }
+    main .carousel-card.logo-card { background:#101712; }
+    main .carousel-card.logo-card img { width:100%; height:100%; }
+    main .carousel-button { top:50%; background:var(--c-bg); } main .carousel-status { bottom:0; }
+    .page .section-head { display:grid; grid-template-columns:minmax(6rem,.24fr) 1fr; gap:1rem; align-items:start; margin-bottom:clamp(.65rem,1.5vh,1rem); }
+    .page .section-index { margin:0; font-size:.62rem; }
+    .page h2 { font-size:clamp(2rem,3.7vw,4rem); line-height:.9; }
+    .page .intro { margin-top:.6rem; font-size:clamp(.78rem,1vw,.98rem); line-height:1.35; }
+    .page .section-title-line { max-width:100%; }
+    .page .statement-grid,.page .next-grid { gap:1.4rem; }
+    .page .statement { font-size:clamp(1.8rem,3.3vw,3.5rem); }
+    .page .info-card,.page .future-note { padding:1rem; }
+    .page .info-card h3,.page .future-note h3 { margin:.45rem 0; font-size:clamp(1.2rem,1.8vw,1.8rem); }
+    .page .metrics { margin-top:1rem; } .page .metric { padding:.7rem .75rem .35rem 0; } .page .stat-value { font-size:clamp(2rem,3.6vw,3.6rem); } .page .metric span:last-child { margin-top:.25rem; font-size:.75rem; }
+    .page .capabilities-intro { margin-bottom:.55rem; } .page .kicker { margin:0; font-size:.58rem; }
+    .page .filter { min-height:32px; padding:.3rem .5rem; font-size:.58rem; }
+    .page .capabilities { grid-template-columns:repeat(3,minmax(0,1fr)); } .page .capability { min-height:0; padding:.72rem; } .page .capability h3 { margin:.5rem 0 .25rem; font-size:clamp(.95rem,1.3vw,1.25rem); } .page .capability p { font-size:.72rem; line-height:1.3; } .page .tag { font-size:.55rem; }
+    .page .flow { height:auto; } .page .step { padding:.7rem .7rem .5rem 0; } .page .step::before { margin-bottom:.7rem; } .page .step h3 { font-size:clamp(1rem,1.4vw,1.4rem); } .page .step p,.page .future-list span { font-size:.72rem; line-height:1.28; } .page .step::after { margin-top:.55rem; }
+    .page .future-list li { padding:.55rem 0; } .page .future-note { min-height:0; }
+    .page .notice { margin:0 0 .65rem; padding:.55rem 0 .55rem .75rem; font-size:.76rem; line-height:1.3; }
+    .page .edition-grid { gap:.75rem; } .page .edition-art img { max-height:105px; object-fit:contain; } .page .edition-card { padding:.65rem; } .page .edition-card h3 { font-size:1.12rem; } .page .edition-card p { font-size:.67rem; line-height:1.25; }
+    .page .table-wrap { margin-top:.55rem; overflow:visible; } .page table { min-width:0; table-layout:fixed; font-size:.58rem; } .page caption { padding:.25rem 0; font-size:.6rem; } .page th,.page td { padding:.28rem; line-height:1.16; } .page thead th { font-size:.5rem; } .page tbody th,.page .planned { font-size:.58rem; }
+    .page .closing { padding-top:.7rem; } .page .closing h2 { font-size:clamp(1.6rem,3vw,3rem); } .page .closing .button { min-height:34px; padding:.5rem .7rem; }
+    .nav-wrap .brand img { width:46px; height:auto; object-fit:contain; filter:brightness(0) saturate(100%) invert(13%) sepia(16%) saturate(1200%) hue-rotate(84deg) brightness(93%) contrast(91%); }
+    :root:not([data-theme="paper"]) .nav-wrap .brand img { filter:brightness(0) saturate(100%) invert(90%) sepia(22%) saturate(410%) hue-rotate(4deg) brightness(103%) contrast(91%); }
+    main .carousel-card { width:min(100%,1080px); }
+    @media (min-width:901px) { main .hero { grid-template-columns:16rem minmax(0,1fr); gap:1rem; } main .hero h1 { font-size:3rem; letter-spacing:-.1em; } main .carousel-card { left:54%; width:min(100%,1080px); transform:translate(-50%,-50%) translate(calc(var(--slot) * .7%),calc(var(--depth) * 10px)) rotate(calc(var(--slot) * .8deg)); } main .carousel-card:not(.is-active) { transform:translate(-50%,-50%) translate(calc(var(--slot) * .7%),calc(var(--depth) * 10px)) rotate(calc(var(--slot) * .8deg)) scale(.94); } }
+    @media (min-width:901px) and (max-width:1439px) { main .carousel-card { left:52.5%; width:min(100%,calc(100vw - 330px),1080px); } }
+    @media (max-height:800px) and (min-width:701px) { main .hero { padding:.35rem 0; } }
+    @media (max-width:900px) { .page > :is(header,section).shell { width:min(100% - 2rem,1360px); } main .hero { grid-template-columns:minmax(15rem,.5fr) minmax(0,1.5fr); } main .hero h1 { font-size:clamp(2.5rem,5.7vw,4.4rem); } .page .capability { padding:.5rem; } .page .capability p { font-size:.66rem; } .page .edition-art img { max-height:78px; } }
+    @media (max-width:700px) { .nav-wrap nav { min-height:52px; display:grid; grid-template-columns:auto 1fr auto; grid-template-areas:"brand links theme"; gap:.35rem; padding:.35rem 0; } .nav-wrap .brand { grid-area:brand; gap:0; } .nav-wrap .brand img { width:27px; height:27px; } .nav-wrap .brand span { display:none; } .nav-wrap .theme { grid-area:theme; min-height:34px; padding:.35rem; font-size:.55rem; } .nav-wrap .nav-links { grid-area:links; width:auto; overflow:visible; justify-content:space-between; gap:0; } .nav-wrap .nav-links a { min-width:0; padding:.35rem .28rem; font-size:0; } .nav-wrap .nav-links a::after { content:attr(data-page-label); font:500 .58rem var(--f-mono); letter-spacing:0; } .page > :is(header,section).shell { width:min(100% - 1.25rem,1360px); } main .hero { grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr); gap:.25rem; padding:.55rem 0; } main .hero h1 { font-size:clamp(2rem,9.2vw,3rem); } main .hero .eyebrow { margin:0 0 .35rem; font-size:.52rem; } main .hero .lead { display:none; } main .hero-actions { margin-top:.55rem; } main .hero .button { min-height:34px; padding:.45rem .6rem; font-size:.55rem; } main .hero .microcopy { display:none; } main .hero-art,main .carousel { height:100%; } main .hero-art::before { width:min(82%,360px); } main .carousel-card { width:94%; transform:translate(-50%,-50%) translate(calc(var(--slot) * 2%),calc(var(--depth) * 8px)) rotate(calc(var(--slot) * 1.5deg)); } main .carousel-button { top:48%; } .page > section { padding:.65rem 0; } .page .section-head { grid-template-columns:1fr; gap:.25rem; margin-bottom:.45rem; } .page .section-index { font-size:.54rem; } .page h2 { font-size:clamp(1.45rem,7vw,2.15rem); } .page .intro { margin-top:.35rem; font-size:.68rem; line-height:1.22; } .page .statement-grid,.page .next-grid { grid-template-columns:1fr; gap:.45rem; } .page .statement { font-size:1.55rem; } .page .info-card,.page .future-note { padding:.55rem; } .page .info-card p,.page .future-note p { font-size:.66rem; line-height:1.22; } .page .metrics { margin-top:.45rem; } .page .metric { padding:.38rem 0; } .page .stat-value { font-size:1.65rem; } .page .metric span:last-child { font-size:.62rem; } .page .capabilities-intro { align-items:center; flex-direction:row; margin-bottom:.35rem; } .page .kicker { display:none; } .page .filter-bar { gap:.2rem; } .page .filter { min-height:28px; padding:.2rem .3rem; font-size:.5rem; } .page .capabilities { grid-template-columns:repeat(2,minmax(0,1fr)); } .page .capability { padding:.35rem; } .page .capability h3 { margin:.25rem 0 .15rem; font-size:.75rem; } .page .capability p { font-size:.56rem; line-height:1.16; } .page .tag { font-size:.43rem; } .page .flow { grid-template-columns:repeat(2,minmax(0,1fr)); } .page .step,.page .step + .step,.page .step:nth-child(2) { padding:.38rem; border:1px solid var(--c-line-light); } .page .step::before { margin-bottom:.25rem; font-size:.5rem; } .page .step h3 { font-size:.78rem; } .page .step p,.page .future-list span { font-size:.57rem; } .page .step::after { margin-top:.25rem; } .page .future-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.35rem; border:0; } .page .future-list li { grid-template-columns:.65rem 1fr; gap:.25rem; padding:.3rem; border:1px solid var(--line); } .page .future-list strong { font-size:.62rem; line-height:1.1; } .page .notice { margin-bottom:.35rem; padding:.3rem 0 .3rem .5rem; font-size:.58rem; } .page .edition-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.3rem; } .page .edition-art img { max-height:53px; } .page .edition-card { padding:.35rem; } .page .edition-card h3 { margin:0 0 .15rem; font-size:.78rem; } .page .edition-card p { display:none; } .page .table-wrap { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; } .page .closing { padding-top:.3rem; } .page .closing h2 { font-size:1.1rem; } .page .closing .button { min-height:30px; font-size:.5rem; } .page-footer { right:.65rem; bottom:.25rem; left:.65rem; font-size:.42rem; } }
+    @media (max-width:700px) { .nav-wrap .brand img { width:36px; height:auto; } .page .edition-grid { grid-template-columns:1fr; gap:.28rem; } .page .edition { display:grid; grid-template-columns:78px minmax(0,1fr); align-items:stretch; } .page .edition-art { display:grid; place-items:center; } .page .edition-art img { width:100%; max-height:53px; } .page .edition-card { display:flex; flex-direction:column; justify-content:center; padding:.28rem .4rem; } .page .edition-card p { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; font-size:.54rem; line-height:1.14; } }
+    h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus { outline:none; }
+    .page .section-head { display:block; margin-bottom:clamp(.8rem,1.8vh,1.25rem); }
+    .page .section-index { margin:0 0 .45rem; }
+    .page .section-head > div { display:block; }
+    @media (min-width:901px) { .page > section { display:flex; flex-direction:column; justify-content:center; } main .hero { grid-template-columns:clamp(22rem,27vw,26rem) minmax(0,1fr); gap:clamp(1rem,2vw,2rem); } main .hero h1 { font-size:clamp(3.35rem,4.2vw,4.2rem); letter-spacing:-.065em; } main .hero .lead { font-size:clamp(1rem,1.2vw,1.12rem); line-height:1.46; } main .hero-art,main .carousel { height:min(100%,740px); } main .carousel-card { left:50%; width:min(86%,820px); } .page .section-head { max-width:76rem; } }
+    @media (min-width:1600px) { .shell,.page > :is(header,section).shell,.nav-wrap nav.shell { width:min(calc(100% - 6rem),1760px); } nav { min-height:76px; gap:1.6rem; } .nav-links a { padding:.7rem .85rem; font-size:.74rem; } .theme { min-height:48px; padding:.65rem .9rem; font-size:.74rem; } .nav-wrap .brand img { width:54px; } .nav-wrap .brand { font-size:.88rem; } main .hero { grid-template-columns:34rem minmax(0,1fr); gap:2rem; } main .hero h1 { font-size:clamp(5rem,5.1vw,5.5rem); letter-spacing:-.065em; } main .hero .lead { font-size:1.2rem; max-width:48ch; } main .hero-actions { margin-top:1.5rem; } main .hero .microcopy { font-size:.64rem; } main .hero-art,main .carousel { height:min(100%,800px); } main .carousel-card { left:50%; width:min(78%,900px); } .page > section { padding:clamp(1.2rem,2.8vh,2rem) 0; } .page .section-head { margin-bottom:1.5rem; } .page .section-index { margin-bottom:.65rem; font-size:.76rem; } .page h2 { font-size:clamp(4.8rem,5vw,5.5rem); } .page .intro { margin-top:.85rem; font-size:1.1rem; line-height:1.45; } .page .statement { font-size:4.1rem; } .page .info-card,.page .future-note { padding:1.35rem; } .page .info-card p,.page .future-note p { font-size:.94rem; } .page .metrics { margin-top:1.5rem; } .page .metric { padding:1rem 1rem .65rem 0; } .page .metric span:last-child { font-size:.88rem; } .page .stat-value { font-size:4.6rem; } .page .filter { min-height:38px; padding:.45rem .7rem; font-size:.65rem; } .page .capability { padding:1rem; } .page .capability h3 { font-size:1.38rem; } .page .capability p { font-size:.86rem; line-height:1.38; } .page .tag { font-size:.62rem; } .page .step { padding:1rem 1rem .75rem 0; } .page .step h3 { font-size:1.45rem; } .page .step p,.page .future-list span { font-size:.84rem; line-height:1.35; } .page .future-list li { padding:.8rem 0; } .page .notice { margin-bottom:1rem; padding:.8rem 0 .8rem 1rem; font-size:.9rem; } .page .edition-grid { gap:1rem; } .page .edition-art img { max-height:145px; } .page .edition-card { padding:1rem; } .page .edition-card h3 { font-size:1.4rem; } .page .edition-card p { font-size:.84rem; line-height:1.35; } .page table { font-size:.7rem; } .page caption,.page tbody th,.page .planned { font-size:.7rem; } .page th,.page td { padding:.4rem; line-height:1.22; } .page thead th { font-size:.58rem; } .page .closing { padding-top:.45rem; } .page[data-page="5"] .closing { padding-top:0; transform:translateY(-7px); } .page .closing h2 { font-size:3.2rem; } .page[data-page="5"] .closing h2 { font-size:2.8rem; white-space:nowrap; } .page[data-page="5"] .closing .section-title-line { display:inline; } .page[data-page="5"] .closing .section-title-line + .section-title-line::before { content:" "; white-space:pre; } .page-footer { right:3rem; left:3rem; font-size:.58rem; } }
+    .page.is-pixel-exit { z-index:3; visibility:visible; pointer-events:none; transform:none; }
+    .page.is-pixel-next { z-index:2; visibility:visible; pointer-events:none; clip-path:inset(0); transform:none; }
+    html.pager-ready .page { transition:none; }
+    main .carousel-card { --fan-scale:1; opacity:1; filter:none; }
+    main .carousel-card.is-active { transform:translate(-50%,-50%) scale(1); }
+    main .carousel-card:not(.is-active) { transform:translate(-50%,-50%) translate(calc(var(--slot) * 5.5%),calc(var(--depth) * 18px)) rotate(calc(var(--slot) * 4deg)) scale(var(--fan-scale)); }
+    main .hero-art::before { left:50%; right:auto; top:50%; width:min(calc(100% + 6rem),1160px); aspect-ratio:1.45; height:auto; transform:translate(-50%,-50%); }
+    @media (max-width:700px) { main .carousel-card:not(.is-active) { transform:translate(-50%,-50%) translate(calc(var(--slot) * 2.4%),calc(var(--depth) * 8px)) rotate(calc(var(--slot) * 1.8deg)) scale(var(--fan-scale)); } main .hero-art::before { width:calc(100% + 3rem); aspect-ratio:1.22; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#inicio">Saltar al contenido</a>
+  <div class="nav-wrap">
+    <nav class="shell" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="MacWatch, inicio"><img src="assets/macwatch-nav-logo-transparent.png" alt=""><span>MacWatch</span></a>
+      <div class="nav-links" id="nav-links">
+        <a href="#inicio" class="active" data-page-label="00">Inicio</a><a href="#que-es" data-page-label="01">Qué es</a><a href="#funciones" data-page-label="02">Funciones</a><a href="#como-funciona" data-page-label="03">Cómo funciona</a><a href="#proximamente" data-page-label="04">Próximamente</a><a href="#versiones" data-page-label="05">Versiones</a>
+      </div>
+      <button class="theme" id="theme" type="button" aria-pressed="false" aria-label="Cambiar a modo noche">Noche</button>
+    </nav>
+  </div>
+
+  <main id="inicio">
+    <div class="dark-surface page is-active" data-page="0">
+      <header class="shell hero">
+        <div>
+          <p class="eyebrow">MacWatch / beta privada para macOS</p>
+          <h1><span class="hero-title-line">Conoce tu Mac.</span><span class="hero-title-line">Sin ruido.</span></h1>
+          <p class="lead">MacWatch convierte señales locales —puertos, procesos, proyectos, contenedores y herramientas— en una vista clara para decidir qué está pasando y qué hacer después.</p>
+          <div class="hero-actions"><a class="button primary" href="#funciones">Ver funciones</a><a class="button" href="#versiones">Comparar versiones</a></div>
+          <p class="microcopy">Local primero · idioma EN/ES · control explícito ante acciones que cambian algo</p>
+        </div>
+        <div class="hero-art">
+          <div class="carousel" id="product-carousel" role="region" aria-roledescription="carousel" aria-label="Capturas de MacWatch" tabindex="0">
+            <div class="carousel-stage">
+              <figure class="carousel-card is-active" data-depth="0" role="group" aria-roledescription="slide" aria-label="1 de 6: Puertos" tabindex="0"><img src="assets/macwatch-puertos.png" alt="Captura de MacWatch mostrando puertos"></figure>
+              <figure class="carousel-card" data-depth="1" role="group" aria-roledescription="slide" aria-label="2 de 6: Container" aria-hidden="true" tabindex="-1"><img src="assets/macwatch-container.png" alt=""></figure>
+              <figure class="carousel-card" data-depth="2" role="group" aria-roledescription="slide" aria-label="3 de 6: Desarrollo" aria-hidden="true" tabindex="-1"><img src="assets/macwatch-desarrollo.png" alt=""></figure>
+              <figure class="carousel-card" data-depth="3" role="group" aria-roledescription="slide" aria-label="4 de 6: Aplicaciones de desarrollo" aria-hidden="true" tabindex="-1"><img src="assets/macwatch-desarrollo-aplicaciones.png" alt=""></figure>
+              <figure class="carousel-card" data-depth="2" role="group" aria-roledescription="slide" aria-label="5 de 6: Cobertura de desarrollo" aria-hidden="true" tabindex="-1"><img src="assets/macwatch-desarrollo-cobertura.png" alt=""></figure>
+              <figure class="carousel-card" data-depth="1" role="group" aria-roledescription="slide" aria-label="6 de 6: Entorno de desarrollo" aria-hidden="true" tabindex="-1"><img src="assets/macwatch-desarrollo-env.png" alt=""></figure>
+            </div>
+            <div class="carousel-controls"><button class="carousel-button" type="button" data-carousel="previous" aria-label="Ver captura anterior">←</button><p class="carousel-status" aria-live="polite" aria-atomic="true">1 / 6 · Puertos</p><button class="carousel-button" type="button" data-carousel="next" aria-label="Ver captura siguiente">→</button></div>
+          </div>
+        </div>
+      </header>
+    </div>
+
+    <div class="page page-paper" data-page="1"><section id="que-es" class="shell reveal">
+      <div class="section-head"><p class="section-index">01 / Qué es</p><div><h2><span class="section-title-line">Una lectura útil de</span><span class="section-title-line">la actividad local.</span></h2><p class="intro">No es otro panel lleno de métricas. MacWatch reúne los detalles que importan para entender tu entorno de desarrollo y operativo sin perder el control de tus datos ni de tus acciones.</p></div></div>
+      <div class="statement-grid"><p class="statement">Contexto antes que <em>ruido.</em></p><article class="info-card"><p class="status">Disponible en beta</p><h3>Ve lo que corre y se conecta.</h3><p>Puertos, conexiones, procesos, proyectos y servicios web en una vista local, con un resumen desde la barra de menús.</p></article></div>
+      <div class="metrics" role="group" aria-label="Principios de MacWatch"><div class="metric"><span class="stat-value">Local</span><span>La lectura empieza en tu Mac.</span></div><div class="metric"><span class="stat-value">7 <em>días</em></span><span>Historial para detectar cambios con contexto.</span></div><div class="metric"><span class="stat-value">Tú</span><span>Confirmas cada operación sensible.</span></div></div>
+    </section></div>
+
+    <div class="dark-surface page" data-page="2">
+      <section id="funciones" class="shell reveal">
+        <div class="section-head"><p class="section-index">02 / Funciones</p><div><h2><span class="section-title-line">Potencia visible,</span><span class="section-title-line">sin promesas infladas.</span></h2><p class="intro">Filtra para separar lo que ya está disponible en la beta privada de lo que estamos preparando.</p></div></div>
+        <div class="capabilities-intro"><p class="kicker">Elige el alcance mostrado</p><div class="filter-bar" role="group" aria-label="Filtrar funciones"><button class="filter" type="button" data-filter="all" aria-pressed="true">Todas</button><button class="filter" type="button" data-filter="available" aria-pressed="false">Disponibles</button><button class="filter" type="button" data-filter="future" aria-pressed="false">Próximamente</button></div></div>
+        <div class="capabilities" id="capabilities">
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Red y actividad</h3><p>Puertos, conexiones, procesos, proyectos y web service con resumen en la barra de menús.</p></article>
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Inventario que no frena</h3><p>Herramientas, apps, paquetes, proyectos, Git y Homebrew mediante inventario incremental.</p></article>
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Apple Container 1.x</h3><p>Monitorización, métricas y gestión confirmada; las acciones de gestión piden confirmación.</p></article>
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Seguridad con precisión</h3><p>NVD/CPE exacto iniciado manualmente: sin coincidencias vagas que aparenten certeza.</p></article>
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Diagnóstico con causa</h3><p>Causalidad nativa, dependencias opt-in y agentes Codex, Claude, Pi u OpenCode solo con consentimiento.</p></article>
+          <article class="capability" data-state="available"><span class="tag">Disponible en beta</span><h3>Control explícito</h3><p>SIGTERM best-effort confirmado. EN/ES para trabajar en el idioma que prefieras.</p></article>
+          <article class="capability" data-state="future"><span class="tag future">Próximamente</span><h3>Alertas a tu manera</h3><p>Alertas estándar y personalizadas para que el seguimiento se adapte a tu trabajo.</p></article>
+          <article class="capability" data-state="future"><span class="tag future">Próximamente</span><h3>Informes y exportación</h3><p>Resúmenes compartibles para llevar los hallazgos fuera de la app.</p></article>
+          <article class="capability" data-state="future"><span class="tag future">Próximamente</span><h3>Agente IA para Container</h3><p>Una evolución por fases para Apple Container, no una función disponible hoy.</p></article>
+        </div>
+      </section>
+    </div>
+
+    <div class="process page" data-page="3">
+      <section id="como-funciona" class="shell reveal">
+        <div class="section-head"><p class="section-index">03 / Cómo funciona</p><div><h2><span class="section-title-line">Cuatro pasos.</span><span class="section-title-line">Tu Mac sigue siendo tuya.</span></h2><p class="intro">MacWatch trabaja localmente y hace visible el camino entre una señal, su contexto y la siguiente acción.</p></div></div>
+        <div class="flow" role="group" aria-label="Flujo de cuatro pasos de MacWatch"><article class="step"><h3>Observa</h3><p>Detecta actividad local, puertos, procesos, proyectos, herramientas y contenedores compatibles.</p></article><article class="step"><h3>Ordena</h3><p>Construye un inventario incremental y conserva siete días de historial para comparar.</p></article><article class="step"><h3>Explica</h3><p>Relaciona señales con causalidad nativa y, cuando lo autorizas, con dependencias o agentes CLI.</p></article><article class="step"><h3>Te deja decidir</h3><p>Las operaciones sensibles se confirman; SIGTERM es best-effort y la evaluación NVD se inicia manualmente.</p></article></div>
+      </section>
+    </div>
+
+    <div class="dark-surface page" data-page="4">
+      <section id="proximamente" class="shell reveal">
+        <div class="section-head"><p class="section-index">04 / Próximamente</p><div><h2><span class="section-title-line">La dirección está clara.</span><span class="section-title-line">El calendario, no se inventa.</span></h2><p class="intro">Estas capacidades son futuras. Las mostramos para explicar hacia dónde va MacWatch, no como disponibilidad actual.</p></div></div>
+        <div class="next-grid"><ul class="future-list"><li><div><strong>Alertas estándar y personalizadas</strong><span>Seguimiento más proactivo cuando el producto esté listo.</span></div></li><li><div><strong>Informes y exportación</strong><span>Contexto fácil de compartir fuera de MacWatch.</span></div></li><li><div><strong>Agente IA para Apple Container por fases</strong><span>Un despliegue gradual con límites claros.</span></div></li><li><div><strong>Ediciones comerciales y distribución</strong><span>Canales de entrega definidos antes de prometer disponibilidad.</span></div></li></ul><div class="future-note" role="note"><span class="status">Próximamente</span><h3>Construir confianza también es decir “aún no”.</h3><p>MacWatch no presenta como actual una función futura, ni vuelve automática una acción que requiere tu consentimiento.</p></div></div>
+      </section>
+    </div>
+
+    <div class="dark-surface page" data-page="5">
+      <section id="versiones" class="shell reveal">
+        <div class="section-head"><p class="section-index">05 / Versiones</p><div><h2><span class="section-title-line">Elige el alcance.</span><span class="section-title-line">Las tres están previstas.</span></h2><p class="intro">La beta actual todavía no se distribuye como Lite, Pro ni Ultra. En este artefacto, <strong>Ultra</strong> nombra el alcance documentado como <strong>Direct Pro Full</strong>; el nombre definitivo sigue pendiente.</p></div></div>
+        <p class="notice"><strong>Nota de transparencia:</strong> Lite, Pro y Ultra son ediciones previstas, no productos disponibles todavía. No hay precios anunciados y las capacidades futuras se marcan como tales.</p>
+        <div class="edition-grid" role="group" aria-label="Identidad visual y alcance de las ediciones previstas"><article class="edition"><div class="edition-art"><img src="assets/macwatch-lite-banner.png" alt="MacWatch Lite, edición prevista"></div><div class="edition-card"><h3>Lite</h3><p>Lo esencial para ver puertos, procesos, contenedores y tu inventario de desarrollo. Entrada gratuita prevista para Mac App Store.</p></div></article><article class="edition"><div class="edition-art"><img src="assets/macwatch-pro-banner.png" alt="MacWatch Pro, edición prevista"></div><div class="edition-card"><h3>Pro</h3><p>Más historial y diagnóstico para quien necesita entender cambios, investigar incidencias y trabajar con más contexto.</p></div></article><article class="edition"><div class="edition-art"><img src="assets/macwatch-ultra-banner.png" alt="MacWatch Ultra, edición prevista"></div><div class="edition-card featured"><h3>Ultra</h3><p>La experiencia completa: agentes, causalidad, vulnerabilidades, actualizaciones guiadas y gestión avanzada de Apple Container.</p></div></article></div>
+        <div class="table-wrap" role="region" tabindex="0" aria-label="Comparativa de alcance previsto de las ediciones MacWatch"><table><caption>Comparativa de alcance previsto. No constituye una oferta comercial ni disponibilidad actual.</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Lite · gratis · App Store</th><th scope="col">Pro · compra única · App Store</th><th scope="col">Ultra · distribución directa</th></tr></thead><tbody><tr><th scope="row">Estado</th><td class="planned">Prevista</td><td class="planned">Prevista</td><td class="planned">Prevista · alcance Direct Pro Full</td></tr><tr><th scope="row">Visibilidad básica</th><td><span class="check">—</span> Puertos y procesos básicos</td><td><span class="check">—</span> Todo Lite</td><td><span class="check">—</span> Alcance completo de la beta</td></tr><tr><th scope="row">Apple Container</th><td><span class="check">—</span> Monitorización</td><td><span class="check">—</span> Monitorización</td><td><span class="check">—</span> Gestión avanzada Container</td></tr><tr><th scope="row">Inventario</th><td><span class="check">—</span> Solo lectura</td><td><span class="check">—</span> Todo Lite</td><td><span class="check">—</span> Inventario completo</td></tr><tr><th scope="row">Historial y diagnóstico</th><td>—</td><td><span class="check">—</span> Historial y diagnóstico compatible con sandbox</td><td><span class="check">—</span> Causalidad completa y updates guiadas</td></tr><tr><th scope="row">Vulnerabilidades y agentes</th><td>—</td><td class="planned">Vulnerabilidades bajo gate</td><td><span class="check">—</span> Vulnerabilidades y agentes con consentimiento</td></tr><tr><th scope="row">Funciones futuras</th><td>—</td><td class="planned">Alertas y reportes futuros</td><td class="planned">Alertas, reportes y agente IA Container futuros</td></tr></tbody></table></div>
+        <div class="closing"><h2><span class="section-title-line">Lo que ocurre en tu Mac</span><span class="section-title-line">merece una lectura clara.</span></h2><a class="button primary" href="#inicio">Volver al inicio</a></div>
+      </section>
+      <footer class="shell page-footer">MacWatch · overview comercial conceptual · estado descrito: beta privada y roadmap. Las marcas y canales de distribución se presentan únicamente como planificación. Sistema visual MAT de Zara Zhang, bajo licencia MIT.</footer>
+    </div>
+  </main>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const theme = document.getElementById('theme');
+      const setTheme = mode => { root.dataset.theme = mode; theme.textContent = mode === 'paper' ? 'Noche' : 'Papel'; theme.setAttribute('aria-pressed', String(mode === 'night')); theme.setAttribute('aria-label', mode === 'paper' ? 'Cambiar a modo noche' : 'Cambiar a modo papel'); };
+      let savedTheme = 'paper';
+      try { savedTheme = localStorage.getItem('macwatch-theme') || 'paper'; } catch (_) {}
+      setTheme(savedTheme);
+      theme.addEventListener('click', () => { const next = root.dataset.theme === 'night' ? 'paper' : 'night'; try { localStorage.setItem('macwatch-theme', next); } catch (_) {} setTheme(next); });
+      const filters = [...document.querySelectorAll('.filter')]; const cards = [...document.querySelectorAll('.capability')];
+      filters.forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; filters.forEach(item => item.setAttribute('aria-pressed', String(item === button))); cards.forEach(card => { card.hidden = filter !== 'all' && card.dataset.state !== filter; }); }));
+      const carousel = document.getElementById('product-carousel');
+      if (carousel) {
+        const slides = [...carousel.querySelectorAll('.carousel-card')];
+        const status = carousel.querySelector('.carousel-status');
+        const labels = ['Puertos', 'Container', 'Desarrollo', 'Aplicaciones de desarrollo', 'Cobertura de desarrollo', 'Entorno de desarrollo'];
+        let activeSlide = 0;
+        let pointerStartX = null;
+        const setSlide = index => {
+          const shouldRestoreSlideFocus = slides.includes(document.activeElement);
+          activeSlide = (index + slides.length) % slides.length;
+          slides.forEach((slide, slideIndex) => {
+            let slot = (slideIndex - activeSlide + slides.length) % slides.length;
+            if (slot > Math.floor(slides.length / 2)) slot -= slides.length;
+            const isActive = slideIndex === activeSlide;
+            const depth = Math.abs(slot);
+            slide.style.setProperty('--slot', slot);
+            slide.style.setProperty('--depth', depth);
+            slide.style.setProperty('--fan-scale', isActive ? '1' : String(Math.max(.72, .98 - depth * .08)));
+            slide.style.zIndex = String(slides.length - depth);
+            slide.classList.toggle('is-active', isActive);
+            slide.dataset.depth = String(depth);
+            slide.setAttribute('aria-hidden', String(!isActive));
+            slide.tabIndex = isActive ? 0 : -1;
+            if ('inert' in slide) slide.inert = !isActive;
+          });
+          status.textContent = `${activeSlide + 1} / ${slides.length} · ${labels[activeSlide]}`;
+          if (shouldRestoreSlideFocus) slides[activeSlide].focus({ preventScroll:true });
+        };
+        carousel.querySelectorAll('[data-carousel]').forEach(button => button.addEventListener('click', () => setSlide(activeSlide + (button.dataset.carousel === 'next' ? 1 : -1))));
+        carousel.addEventListener('keydown', event => {
+          if (event.key === 'ArrowLeft') { event.preventDefault(); setSlide(activeSlide - 1); }
+          if (event.key === 'ArrowRight') { event.preventDefault(); setSlide(activeSlide + 1); }
+          if (event.key === 'Home') { event.preventDefault(); setSlide(0); }
+          if (event.key === 'End') { event.preventDefault(); setSlide(slides.length - 1); }
+        });
+        carousel.addEventListener('pointerdown', event => { pointerStartX = event.clientX; }, { passive:true });
+        carousel.addEventListener('pointerup', event => { if (pointerStartX === null) return; const distance = event.clientX - pointerStartX; pointerStartX = null; if (Math.abs(distance) >= 36) setSlide(activeSlide + (distance < 0 ? 1 : -1)); }, { passive:true });
+        carousel.addEventListener('pointercancel', () => { pointerStartX = null; }, { passive:true });
+        setSlide(0);
+      }
+      const pager = document.querySelector('main');
+      const pages = [...document.querySelectorAll('.page')];
+      const links = [...document.querySelectorAll('.nav-links a')];
+      const pageHashes = ['#inicio', '#que-es', '#funciones', '#como-funciona', '#proximamente', '#versiones'];
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      try { history.scrollRestoration = 'manual'; } catch (_) {}
+      let currentPage = 0;
+      let pagerLocked = false;
+      let queuedPage = null;
+      let wheelDistance = 0;
+      let pagerTouch = null;
+      let pagerTransition = null;
+      let pixelExitId = 0;
+      const pixelExitDuration = 900;
+      const svgNamespace = 'http://www.w3.org/2000/svg';
+      const buildPixelExit = (previous, backward) => {
+        if (!previous || !window.SVGElement || !CSS.supports('clip-path', 'url(#pixel-exit)')) return null;
+        const width = Math.ceil(pager.clientWidth);
+        const height = Math.ceil(pager.clientHeight);
+        if (!width || !height) return null;
+        let cellSize = width <= 700 ? 24 : 27;
+        let columns = Math.max(1, Math.floor(width / cellSize));
+        let rows = Math.max(1, Math.floor(height / cellSize));
+        while (columns * rows > 3500) {
+          cellSize += 4;
+          columns = Math.max(1, Math.floor(width / cellSize));
+          rows = Math.max(1, Math.floor(height / cellSize));
+        }
+        const svg = document.createElementNS(svgNamespace, 'svg');
+        const defs = document.createElementNS(svgNamespace, 'defs');
+        const clipPath = document.createElementNS(svgNamespace, 'clipPath');
+        const clipId = `macwatch-pixel-exit-${++pixelExitId}`;
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('width', '0');
+        svg.setAttribute('height', '0');
+        svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;';
+        clipPath.setAttribute('id', clipId);
+        clipPath.setAttribute('clipPathUnits', 'objectBoundingBox');
+        const cellWidth = width / columns;
+        const cellHeight = height / rows;
+        const lastColumn = Math.max(1, columns - 1);
+        const cells = [];
+        for (let row = 0; row < rows; row += 1) {
+          for (let column = 0; column < columns; column += 1) {
+            const rect = document.createElementNS(svgNamespace, 'rect');
+            const x = column * cellWidth / width;
+            const y = row * cellHeight / height;
+            const jitterCells = ((row * 37 + Math.floor(row / 2) * 11) % 7) - 3;
+            const originColumn = backward ? column : columns - 1 - column;
+            const staggerColumn = Math.max(0, Math.min(lastColumn, originColumn + jitterCells));
+            rect.setAttribute('x', String(x));
+            rect.setAttribute('y', String(y));
+            rect.setAttribute('width', String(Math.min(1 - x, (cellWidth + 1) / width)));
+            rect.setAttribute('height', String(Math.min(1 - y, (cellHeight + 1) / height)));
+            rect.setAttribute('shape-rendering', 'crispEdges');
+            clipPath.append(rect);
+            cells.push({ rect, delay:Math.round(staggerColumn / lastColumn * 860), removed:false });
+          }
+        }
+        defs.append(clipPath);
+        svg.append(defs);
+        document.body.append(svg);
+        previous.style.clipPath = `url(#${clipId})`;
+        previous.classList.add('is-pixel-exit');
+        return { previous, svg, cells };
+      };
+      const pageFromHash = hash => Math.max(0, pageHashes.indexOf(hash));
+      const normalizeViewport = () => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollTop = 0;
+        document.body.scrollLeft = 0;
+        pager.scrollTop = 0;
+        pager.scrollLeft = 0;
+      };
+      const setPageState = index => pages.forEach((page, pageIndex) => {
+        const active = pageIndex === index;
+        page.classList.remove('is-entering', 'is-leaving', 'pager-forward', 'pager-backward');
+        page.classList.toggle('is-active', active);
+        page.setAttribute('aria-hidden', String(!active));
+        if ('inert' in page) page.inert = !active;
+      });
+      const setActiveLink = index => links.forEach((link, linkIndex) => {
+        const active = linkIndex === index;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+      const focusPage = index => {
+        const heading = pages[index].querySelector('h1,h2');
+        if (!heading) return;
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll:true });
+      };
+      const swapTransition = transition => {
+        if (transition.swapped) return;
+        setPageState(transition.index);
+        currentPage = transition.index;
+        if (transition.options.focus !== false) focusPage(transition.index);
+        setActiveLink(transition.index);
+        transition.swapped = true;
+        normalizeViewport();
+      };
+      const clearPixelExit = transition => {
+        if (transition.exitFrame) window.cancelAnimationFrame(transition.exitFrame);
+        transition.exitFrame = null;
+        if (!transition.pixelExit) return;
+        transition.pixelExit.previous.classList.remove('is-pixel-exit');
+        transition.pixelExit.previous.style.removeProperty('clip-path');
+        transition.next.classList.remove('is-pixel-next');
+        transition.pixelExit.svg.remove();
+        transition.pixelExit = null;
+      };
+      const finishTransition = transition => {
+        if (!transition || pagerTransition !== transition) return;
+        clearPixelExit(transition);
+        swapTransition(transition);
+        pagerTransition = null;
+        pagerLocked = false;
+        normalizeViewport();
+        requestAnimationFrame(normalizeViewport);
+        const queued = queuedPage;
+        queuedPage = null;
+        if (queued && queued.index !== currentPage) goToPage(queued.index, queued.options);
+      };
+      const forceFinishTransition = () => {
+        const transition = pagerTransition;
+        if (!transition) return;
+        finishTransition(transition);
+      };
+      const runPixelExit = transition => {
+        const startedAt = performance.now();
+        const removeCells = now => {
+          if (pagerTransition !== transition || !transition.pixelExit) return;
+          const elapsed = now - startedAt;
+          transition.pixelExit.cells.forEach(cell => {
+            if (!cell.removed && elapsed >= cell.delay) { cell.rect.remove(); cell.removed = true; }
+          });
+          if (elapsed >= pixelExitDuration) { finishTransition(transition); return; }
+          transition.exitFrame = window.requestAnimationFrame(removeCells);
+        };
+        transition.exitFrame = window.requestAnimationFrame(removeCells);
+      };
+      const goToPage = (requested, options = {}) => {
+        normalizeViewport();
+        const index = Math.max(0, Math.min(pages.length - 1, requested));
+        if (pagerLocked) { queuedPage = { index, options }; return; }
+        if (index === currentPage) { if (options.focus !== false) focusPage(index); return; }
+        const backward = index < currentPage;
+        const previous = pages[currentPage];
+        const next = pages[index];
+        pagerLocked = true;
+        if (options.updateHash) history.pushState(null, '', pageHashes[index]);
+        const transition = { index, options, next, swapped:false, pixelExit:null, exitFrame:null };
+        pagerTransition = transition;
+        if (motionQuery.matches) {
+          finishTransition(transition);
+          return;
+        }
+        transition.pixelExit = buildPixelExit(previous, backward);
+        if (!transition.pixelExit) { finishTransition(transition); return; }
+        next.classList.add('is-pixel-next');
+        requestAnimationFrame(() => { if (pagerTransition === transition && !motionQuery.matches) runPixelExit(transition); });
+      };
+      const handleMotionPreference = event => { if (event.matches) forceFinishTransition(); };
+      if ('addEventListener' in motionQuery) motionQuery.addEventListener('change', handleMotionPreference);
+      else motionQuery.addListener(handleMotionPreference);
+      window.addEventListener('resize', () => { if (pagerLocked) forceFinishTransition(); });
+      setPageState(0);
+      root.classList.add('pager-ready');
+      const initialPage = pageFromHash(location.hash);
+      if (initialPage) { currentPage = initialPage; setPageState(currentPage); }
+      normalizeViewport();
+      requestAnimationFrame(normalizeViewport);
+      window.addEventListener('load', () => { normalizeViewport(); requestAnimationFrame(normalizeViewport); window.setTimeout(normalizeViewport, 50); }, { once:true });
+      setActiveLink(currentPage);
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        const index = pageHashes.indexOf(anchor.hash);
+        if (index < 0) return;
+        anchor.addEventListener('click', event => { event.preventDefault(); normalizeViewport(); goToPage(index, { updateHash:true, focus:true }); });
+      });
+      const navigateFromLocation = () => { normalizeViewport(); goToPage(pageFromHash(location.hash), { focus:true }); requestAnimationFrame(normalizeViewport); };
+      window.addEventListener('popstate', navigateFromLocation);
+      window.addEventListener('hashchange', navigateFromLocation);
+      window.addEventListener('keydown', event => {
+        const target = event.target instanceof Element ? event.target : null;
+        const carouselTarget = target?.closest('#product-carousel');
+        if (target?.closest('input,textarea,select')) return;
+        if (carouselTarget && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        if (event.key === 'ArrowDown' || event.key === 'PageDown') { event.preventDefault(); goToPage(currentPage + 1, { updateHash:true }); }
+        if (event.key === 'ArrowUp' || event.key === 'PageUp') { event.preventDefault(); goToPage(currentPage - 1, { updateHash:true }); }
+        if (event.key === 'Home') { event.preventDefault(); goToPage(0, { updateHash:true }); }
+        if (event.key === 'End') { event.preventDefault(); goToPage(pages.length - 1, { updateHash:true }); }
+      });
+      pager.addEventListener('wheel', event => {
+        const carouselTarget = event.target instanceof Element ? event.target.closest('#product-carousel') : null;
+        if (carouselTarget && Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+        event.preventDefault();
+        if (pagerLocked) return;
+        wheelDistance += event.deltaY;
+        if (Math.abs(wheelDistance) < 56) return;
+        goToPage(currentPage + (wheelDistance > 0 ? 1 : -1), { updateHash:true });
+        wheelDistance = 0;
+      }, { passive:false });
+      pager.addEventListener('pointerdown', event => { pagerTouch = { x:event.clientX, y:event.clientY }; }, { passive:true });
+      pager.addEventListener('pointerup', event => {
+        if (!pagerTouch) return;
+        const distanceX = event.clientX - pagerTouch.x;
+        const distanceY = event.clientY - pagerTouch.y;
+        pagerTouch = null;
+        if (Math.abs(distanceY) >= 48 && Math.abs(distanceY) > Math.abs(distanceX)) goToPage(currentPage + (distanceY < 0 ? 1 : -1), { updateHash:true });
+      }, { passive:true });
+      pager.addEventListener('pointercancel', () => { pagerTouch = null; }, { passive:true });
+    })();
+  </script>
+</body>
+</html>
