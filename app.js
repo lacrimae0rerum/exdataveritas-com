@@ -64,7 +64,7 @@ const PROJECTS = [
   {
     id: "cronicas-barbaras",
     nombre: "Crónicas Bárbaras Knowledge Graph",
-    url: "https://lacrimae0rerum.github.io/cronicas-barbaras/",
+    url: "https://cronicasbarbaras.exdataveritas.com/",
     urlLabel: "CRONICAS-BARBARAS ↗",
     desc_es: "Visor estático del grafo de conocimiento del podcast Crónicas Bárbaras: 147 episodios, ~2500 entidades y 22 comunidades temáticas, con vistas por comunidad o episodio, búsqueda, timeline y deep linking por URL. Canvas 2D puro con d3-force solo para el layout, sin build step.",
     desc_en: "Static knowledge-graph viewer for the Crónicas Bárbaras podcast: 147 episodes, ~2,500 entities and 22 thematic communities, with community and episode views, search, a timeline and URL deep linking. Pure 2D canvas using d3-force only for layout — no build step."
@@ -76,6 +76,14 @@ const PROJECTS = [
     urlLabel: "ALEJANDRIA.EXDATAVERITAS.COM ↗",
     desc_es: "La pequeña biblioteca de términos de IA: una galaxia 3D de conceptos navegable.",
     desc_en: "The little library of AI terms: a navigable 3D galaxy of concepts."
+  },
+  {
+    id: "macwatch",
+    nombre: "MacWatch",
+    url: "https://exdataveritas.com/macwatch/#versiones",
+    urlLabel: "MACWATCH ↗",
+    desc_es: "MacWatch convierte señales locales —puertos, procesos, proyectos, contenedores y herramientas— en una vista clara para decidir qué está pasando y qué hacer después.",
+    desc_en: "MacWatch turns local signals —ports, processes, projects, containers, and tools— into a clear view to understand what is happening and decide what to do next."
   },
   {
     id: "team-journal",
